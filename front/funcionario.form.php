@@ -71,7 +71,10 @@ Tabs::desenhar('funcionarios');
 echo "<div style='max-width: 700px;'>";
 echo "<div class='card'>";
 echo "<div class='card-body'>";
-echo "<h2 class='mb-3'>" . ($id > 0 ? __('Editar evento', 'controleinterno') : __('Novo evento', 'controleinterno')) . "</h2>";
+echo "<div class='d-flex align-items-center gap-2 mb-3'>";
+echo "<a href='" . $CFG_GLPI['root_doc'] . "/plugins/controleinterno/front/funcionario.php' class='btn btn-outline-secondary btn-sm rounded-pill d-inline-flex align-items-center gap-1'><i class='ti ti-arrow-left'></i>" . __('Voltar', 'controleinterno') . "</a>";
+echo "<h2 class='mb-0'>" . ($id > 0 ? __('Editar evento', 'controleinterno') : __('Novo evento', 'controleinterno')) . "</h2>";
+echo "</div>";
 
 echo "<form method='post' action='" . $CFG_GLPI['root_doc'] . "/plugins/controleinterno/front/funcionario.form.php'>";
 echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);

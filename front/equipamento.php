@@ -43,11 +43,36 @@ $linhas = $DB->request([
 if (count($linhas) === 0) {
     echo "<div class='text-muted small'>" . __('Nenhum equipamento registrado ainda.', 'controleinterno') . "</div>";
 } else {
-    echo "<table class='table table-striped'>";
+    // Lista de modelos distintos já cadastrados - só pra popular o filtro,
+    // não é uma lista fechada (modelo é texto livre no formulário).
+    $modelos = $DB->request([
+        'SELECT'   => ['modelo'],
+        'DISTINCT' => true,
+        'FROM'     => Equipamento::getTable(),
+        'WHERE'    => ['modelo' => ['<>', '']],
+        'ORDER'    => ['modelo ASC'],
+    ]);
+
+    echo "<div class='row g-2 mb-3'>";
+    echo "<div class='col-md-6'>";
+    echo "<input type='text' class='form-control' data-busca-tabela='ci-tabela-equipamentos' placeholder='" . __s('Pesquisar...', 'controleinterno') . "'>";
+    echo "</div>";
+    echo "<div class='col-md-4'>";
+    echo "<select class='form-select' data-filtro-select='ci-tabela-equipamentos' data-filtro-col='modelo'>";
+    echo "<option value=''>" . __('Todos os modelos', 'controleinterno') . "</option>";
+    foreach ($modelos as $linhaModelo) {
+        echo "<option value='" . htmlescape($linhaModelo['modelo']) . "'>" . htmlescape($linhaModelo['modelo']) . "</option>";
+    }
+    echo "</select>";
+    echo "</div>";
+    echo "</div>";
+
+    echo "<table class='table table-striped' id='ci-tabela-equipamentos'>";
     echo "<thead><tr>";
     echo "<th>" . __('Descrição', 'controleinterno') . "</th>";
     echo "<th>" . __('Tombo', 'controleinterno') . "</th>";
     echo "<th>" . __('Número de série', 'controleinterno') . "</th>";
+    echo "<th>" . __('Modelo', 'controleinterno') . "</th>";
     echo "<th>" . __('Local', 'controleinterno') . "</th>";
     echo "<th>" . __('Responsável', 'controleinterno') . "</th>";
     echo "</tr></thead><tbody>";
@@ -61,6 +86,7 @@ if (count($linhas) === 0) {
         }
         echo "<td>" . ($linha['tombamento'] !== '' ? htmlescape($linha['tombamento']) : "<span class='text-muted'>" . __('Sem tombo', 'controleinterno') . "</span>") . "</td>";
         echo "<td>" . htmlescape($linha['numero_serie'] ?: '-') . "</td>";
+        echo "<td data-col='modelo' data-valor='" . htmlescape($linha['modelo']) . "'>" . htmlescape($linha['modelo'] ?: '-') . "</td>";
         echo "<td>" . htmlescape($linha['localizacao'] ?: '-') . "</td>";
         echo "<td>" . htmlescape($linha['responsavel'] ?: '-') . "</td>";
         echo "</tr>";
@@ -71,5 +97,7 @@ if (count($linhas) === 0) {
 echo "</div></div>";
 
 echo "</div>";
+
+echo Html::script('plugins/controleinterno/public/js/busca-tabela.js');
 
 Html::footer();

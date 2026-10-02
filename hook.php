@@ -53,6 +53,7 @@ function plugin_controleinterno_install()
             `descricao` varchar(255) NOT NULL DEFAULT '',
             `tombamento` varchar(255) NOT NULL DEFAULT '',
             `numero_serie` varchar(255) NOT NULL DEFAULT '',
+            `modelo` varchar(255) NOT NULL DEFAULT '',
             `localizacao` varchar(255) NOT NULL DEFAULT '',
             `responsavel` varchar(255) NOT NULL DEFAULT '',
             `observacao` text,
@@ -61,7 +62,8 @@ function plugin_controleinterno_install()
             `date_mod` timestamp NULL DEFAULT NULL,
             PRIMARY KEY (`id`),
             KEY `tombamento` (`tombamento`),
-            KEY `numero_serie` (`numero_serie`)
+            KEY `numero_serie` (`numero_serie`),
+            KEY `modelo` (`modelo`)
         ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation};";
         $DB->doQuery($query) or die($DB->error());
     } else {
@@ -69,6 +71,11 @@ function plugin_controleinterno_install()
             'value' => '',
             'after' => 'tombamento',
         ]);
+        $migration->addField('glpi_plugin_controleinterno_equipamentos', 'modelo', 'string', [
+            'value' => '',
+            'after' => 'numero_serie',
+        ]);
+        $migration->addKey('glpi_plugin_controleinterno_equipamentos', 'modelo');
     }
 
     if (!$DB->tableExists('glpi_plugin_controleinterno_notasfiscais')) {
@@ -77,15 +84,27 @@ function plugin_controleinterno_install()
             `fornecedor` varchar(255) NOT NULL DEFAULT '',
             `valor` decimal(15,2) NOT NULL DEFAULT 0.00,
             `data` date DEFAULT NULL,
+            `etiqueta_compra` varchar(255) NOT NULL DEFAULT '',
             `descricao` text,
             `arquivo` varchar(255) NOT NULL DEFAULT '',
             `arquivo_tipo` varchar(10) NOT NULL DEFAULT '',
             `users_id_registro` int {$default_key_sign} NOT NULL DEFAULT 0,
             `date_creation` timestamp NULL DEFAULT NULL,
             `date_mod` timestamp NULL DEFAULT NULL,
-            PRIMARY KEY (`id`)
+            PRIMARY KEY (`id`),
+            KEY `fornecedor` (`fornecedor`),
+            KEY `data` (`data`),
+            KEY `etiqueta_compra` (`etiqueta_compra`)
         ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation};";
         $DB->doQuery($query) or die($DB->error());
+    } else {
+        $migration->addField('glpi_plugin_controleinterno_notasfiscais', 'etiqueta_compra', 'string', [
+            'value' => '',
+            'after' => 'data',
+        ]);
+        $migration->addKey('glpi_plugin_controleinterno_notasfiscais', 'etiqueta_compra');
+        $migration->addKey('glpi_plugin_controleinterno_notasfiscais', 'fornecedor');
+        $migration->addKey('glpi_plugin_controleinterno_notasfiscais', 'data');
     }
 
     // Direito único (READ+UPDATE juntos - uma aba só, sem papel
@@ -95,7 +114,17 @@ function plugin_controleinterno_install()
     // assim o runtime sempre consulta Session::haveRight(), nunca uma
     // lista fixa de IDs (ver HomeAccessService x CoordenacaoAccessService
     // no glpipulseui pro motivo desta escolha).
-    ProfileRight::addProfileRights(['plugin_controleinterno_ver']);
+    // Guardado por existsão: addProfileRights() não é idempotente (dá erro
+    // de chave duplicada se rodar de novo numa instalação já existente,
+    // ex. ao reinstalar pra aplicar uma migração de coluna nova).
+    $direitoJaExiste = (bool) $DB->request([
+        'FROM'  => 'glpi_profilerights',
+        'WHERE' => ['name' => 'plugin_controleinterno_ver'],
+        'LIMIT' => 1,
+    ])->current();
+    if (!$direitoJaExiste) {
+        ProfileRight::addProfileRights(['plugin_controleinterno_ver']);
+    }
 
     // IDs confirmados neste ambiente via glpi_profiles: 3=Admin,
     // 4=Super-Admin, 6=Technician, 11=Coordenador (perfil do plugin

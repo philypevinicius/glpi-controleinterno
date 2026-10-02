@@ -41,6 +41,7 @@ if (isset($_POST['add']) || isset($_POST['update'])) {
         'descricao'    => $descricao,
         'tombamento'   => trim($_POST['tombamento'] ?? ''),
         'numero_serie' => trim($_POST['numero_serie'] ?? ''),
+        'modelo'       => trim($_POST['modelo'] ?? ''),
         'localizacao'  => trim($_POST['localizacao'] ?? ''),
         'responsavel'  => trim($_POST['responsavel'] ?? ''),
         'observacao'   => trim($_POST['observacao'] ?? ''),
@@ -71,7 +72,10 @@ Tabs::desenhar('equipamentos');
 echo "<div style='max-width: 700px;'>";
 echo "<div class='card'>";
 echo "<div class='card-body'>";
-echo "<h2 class='mb-3'>" . ($id > 0 ? __('Editar equipamento', 'controleinterno') : __('Novo equipamento', 'controleinterno')) . "</h2>";
+echo "<div class='d-flex align-items-center gap-2 mb-3'>";
+echo "<a href='" . $CFG_GLPI['root_doc'] . "/plugins/controleinterno/front/equipamento.php' class='btn btn-outline-secondary btn-sm rounded-pill d-inline-flex align-items-center gap-1'><i class='ti ti-arrow-left'></i>" . __('Voltar', 'controleinterno') . "</a>";
+echo "<h2 class='mb-0'>" . ($id > 0 ? __('Editar equipamento', 'controleinterno') : __('Novo equipamento', 'controleinterno')) . "</h2>";
+echo "</div>";
 
 if ($id === 0) {
     echo "<div class='mb-3'>";
@@ -101,6 +105,11 @@ echo "<div class='col-6 mb-3'>";
 echo "<label class='form-label'>" . __('Número de série', 'controleinterno') . "</label>";
 echo Html::input('numero_serie', ['value' => $item->fields['numero_serie'] ?? '', 'id' => 'ci-eq-serie']);
 echo "</div>";
+echo "</div>";
+
+echo "<div class='mb-3'>";
+echo "<label class='form-label'>" . __('Modelo', 'controleinterno') . "</label>";
+echo Html::input('modelo', ['value' => $item->fields['modelo'] ?? '', 'id' => 'ci-eq-modelo']);
 echo "</div>";
 
 echo "<div class='mb-3'>";

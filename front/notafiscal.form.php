@@ -49,10 +49,11 @@ if (isset($_POST['add']) || isset($_POST['update'])) {
     }
 
     $input = [
-        'fornecedor' => $fornecedor,
-        'valor'      => (float) str_replace(',', '.', $_POST['valor'] ?? '0'),
-        'data'       => $_POST['data'] ?: null,
-        'descricao'  => trim($_POST['descricao'] ?? ''),
+        'fornecedor'      => $fornecedor,
+        'valor'           => (float) str_replace(',', '.', $_POST['valor'] ?? '0'),
+        'data'            => $_POST['data'] ?: null,
+        'etiqueta_compra' => trim($_POST['etiqueta_compra'] ?? ''),
+        'descricao'       => trim($_POST['descricao'] ?? ''),
     ];
 
     $upload = plugin_controleinterno_handle_upload_notafiscal();
@@ -101,7 +102,10 @@ Tabs::desenhar('notasfiscais');
 echo "<div style='max-width: 700px;'>";
 echo "<div class='card'>";
 echo "<div class='card-body'>";
-echo "<h2 class='mb-3'>" . ($id > 0 ? __('Editar nota fiscal', 'controleinterno') : __('Nova nota fiscal', 'controleinterno')) . "</h2>";
+echo "<div class='d-flex align-items-center gap-2 mb-3'>";
+echo "<a href='" . $CFG_GLPI['root_doc'] . "/plugins/controleinterno/front/notafiscal.php' class='btn btn-outline-secondary btn-sm rounded-pill d-inline-flex align-items-center gap-1'><i class='ti ti-arrow-left'></i>" . __('Voltar', 'controleinterno') . "</a>";
+echo "<h2 class='mb-0'>" . ($id > 0 ? __('Editar nota fiscal', 'controleinterno') : __('Nova nota fiscal', 'controleinterno')) . "</h2>";
+echo "</div>";
 
 echo "<form method='post' action='" . $CFG_GLPI['root_doc'] . "/plugins/controleinterno/front/notafiscal.form.php' enctype='multipart/form-data'>";
 echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
@@ -121,6 +125,15 @@ echo "<div class='col-6 mb-3'>";
 echo "<label class='form-label'>" . __('Data', 'controleinterno') . "</label>";
 Html::showDateField('data', ['value' => $item->fields['data'] ?? '']);
 echo "</div>";
+echo "</div>";
+
+echo "<div class='mb-3'>";
+echo "<label class='form-label'>" . __('Etiqueta da compra', 'controleinterno') . "</label>";
+echo Html::input('etiqueta_compra', [
+    'value'       => $item->fields['etiqueta_compra'] ?? '',
+    'placeholder' => __s('Ex.: Notebooks para TI, Material de escritório...', 'controleinterno'),
+]);
+echo "<div class='form-text'>" . __('Do que foi essa compra - usado pra filtrar as notas depois.', 'controleinterno') . "</div>";
 echo "</div>";
 
 echo "<div class='mb-3'>";
