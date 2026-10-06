@@ -11,7 +11,9 @@
  * arquivo ser incluído - mesma armadilha já documentada no movimentacoes e
  * no glpipulseui.
  */
-require_once __DIR__ . '/../../../inc/includes.php';
+if (!class_exists(Session::class)) {
+    require_once __DIR__ . '/../../../inc/includes.php';
+}
 
 Session::checkRight(Profile::$rightname, UPDATE);
 
