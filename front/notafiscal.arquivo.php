@@ -8,12 +8,15 @@
  * direito checado aqui, nome do arquivo vem SEMPRE do banco (pelo id),
  * nunca de um parâmetro da URL - evita qualquer travessia de caminho.
  */
-require_once __DIR__ . '/../../../inc/includes.php';
+if (!class_exists(Session::class)) {
+    require_once __DIR__ . '/../../../inc/includes.php';
+}
 
+use GlpiPlugin\Controleinterno\AccessService;
 use GlpiPlugin\Controleinterno\NotaFiscal;
 
 Session::checkLoginUser();
-Session::checkRight('plugin_controleinterno_ver', READ);
+AccessService::exigirAcesso();
 
 $id = (int) ($_GET['id'] ?? 0);
 $item = new NotaFiscal();

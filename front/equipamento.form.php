@@ -6,21 +6,24 @@
  * PREENCHE os campos abaixo - eles continuam editáveis e podem ser
  * digitados na mão pra equipamento sem tombo, sem passar pela busca.
  */
-require_once __DIR__ . '/../../../inc/includes.php';
+if (!class_exists(Session::class)) {
+    require_once __DIR__ . '/../../../inc/includes.php';
+}
 
+use GlpiPlugin\Controleinterno\AccessService;
 use GlpiPlugin\Controleinterno\Equipamento;
 use GlpiPlugin\Controleinterno\Tabs;
 
 global $CFG_GLPI;
 
 Session::checkLoginUser();
-Session::checkRight('plugin_controleinterno_ver', READ);
+AccessService::exigirAcesso();
 
 $item = new Equipamento();
 $id   = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
 
 if (isset($_GET['delete']) && $id > 0) {
-    Session::checkRight('plugin_controleinterno_ver', UPDATE);
+    AccessService::exigirAcesso(UPDATE);
     $item->delete(['id' => $id], true);
     Session::addMessageAfterRedirect(__('Equipamento excluído.', 'controleinterno'), false, INFO);
     Html::redirect($CFG_GLPI['root_doc'] . '/plugins/controleinterno/front/equipamento.php');
@@ -28,7 +31,7 @@ if (isset($_GET['delete']) && $id > 0) {
 }
 
 if (isset($_POST['add']) || isset($_POST['update'])) {
-    Session::checkRight('plugin_controleinterno_ver', UPDATE);
+    AccessService::exigirAcesso(UPDATE);
 
     $descricao = trim($_POST['descricao'] ?? '');
     if ($descricao === '') {

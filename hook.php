@@ -173,7 +173,7 @@ function plugin_controleinterno_redefine_menus($menus)
 {
     global $CFG_GLPI;
 
-    if (!Session::haveRight('plugin_controleinterno_ver', READ)) {
+    if (!\GlpiPlugin\Controleinterno\AccessService::canAccess()) {
         return $menus;
     }
 

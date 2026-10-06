@@ -10,21 +10,24 @@
  * do container), então aquele pedaço do glpinetworkmap está incompleto e
  * não devia ser copiado.
  */
-require_once __DIR__ . '/../../../inc/includes.php';
+if (!class_exists(Session::class)) {
+    require_once __DIR__ . '/../../../inc/includes.php';
+}
 
+use GlpiPlugin\Controleinterno\AccessService;
 use GlpiPlugin\Controleinterno\NotaFiscal;
 use GlpiPlugin\Controleinterno\Tabs;
 
 global $CFG_GLPI;
 
 Session::checkLoginUser();
-Session::checkRight('plugin_controleinterno_ver', READ);
+AccessService::exigirAcesso();
 
 $item = new NotaFiscal();
 $id   = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
 
 if (isset($_GET['delete']) && $id > 0) {
-    Session::checkRight('plugin_controleinterno_ver', UPDATE);
+    AccessService::exigirAcesso(UPDATE);
     $item->getFromDB($id);
     if (!empty($item->fields['arquivo'])) {
         $caminho = NotaFiscal::getArquivoDir() . '/' . $item->fields['arquivo'];
@@ -39,7 +42,7 @@ if (isset($_GET['delete']) && $id > 0) {
 }
 
 if (isset($_POST['add']) || isset($_POST['update'])) {
-    Session::checkRight('plugin_controleinterno_ver', UPDATE);
+    AccessService::exigirAcesso(UPDATE);
 
     $fornecedor = trim($_POST['fornecedor'] ?? '');
     if ($fornecedor === '') {

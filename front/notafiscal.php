@@ -3,17 +3,20 @@
 /**
  * Plugin Controle Interno - Lista de notas fiscais de produtos comprados.
  */
-require_once __DIR__ . '/../../../inc/includes.php';
+if (!class_exists(Session::class)) {
+    require_once __DIR__ . '/../../../inc/includes.php';
+}
 
+use GlpiPlugin\Controleinterno\AccessService;
 use GlpiPlugin\Controleinterno\NotaFiscal;
 use GlpiPlugin\Controleinterno\Tabs;
 
 global $CFG_GLPI, $DB;
 
 Session::checkLoginUser();
-Session::checkRight('plugin_controleinterno_ver', READ);
+AccessService::exigirAcesso();
 
-$podeEditar = Session::haveRight('plugin_controleinterno_ver', UPDATE);
+$podeEditar = AccessService::canAccess(UPDATE);
 
 Html::header(__('Controle Interno', 'controleinterno'), '', 'tools', 'plugincontroleinterno');
 
